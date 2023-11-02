@@ -1,0 +1,370 @@
+MPEGTSMON-MIB DEFINITIONS ::= BEGIN
+
+    IMPORTS
+	MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+	Counter32, Gauge32, IpAddress
+	FROM SNMPv2-SMI
+	
+	OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF;
+    
+    mpegtsMon MODULE-IDENTITY
+	LAST-UPDATED 	"201608051500Z"
+	ORGANIZATION 	"Farbow Kodekamera"
+	CONTACT-INFO 	"ask at farbow.ru"
+	DESCRIPTION 	"The MIB module for mpeg ts monitor."
+    ::= { 1 3 6 1 4 1 37476 9000 24 1 }
+
+-- top hierarchy
+
+    summary OBJECT IDENTIFIER ::= { mpegtsMon 1 }
+        cumulative OBJECT IDENTIFIER ::= { summary 1 }
+        level OBJECT IDENTIFIER ::= { summary 2 }
+
+    other OBJECT IDENTIFIER ::= { mpegtsMon 2 }
+
+    streams OBJECT IDENTIFIER ::= { mpegtsMon 3 }
+
+    probes OBJECT IDENTIFIER ::= { mpegtsMon 4 }
+
+    traps OBJECT IDENTIFIER ::= { mpegtsMon 99 }
+
+    groups OBJECT IDENTIFIER ::= { mpegtsMon 100 }
+
+-- summary cumulative
+
+    recvBytes OBJECT-TYPE
+	SYNTAX		Counter32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of received bytes."
+    ::= { cumulative 1 }
+
+    continuityErrors OBJECT-TYPE
+	SYNTAX		Counter32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of detected discontinuities."
+    ::= { cumulative 2 }
+
+-- summary level
+
+    streamsTotal OBJECT-TYPE
+	SYNTAX		Gauge32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of streams under monitoring."
+    ::= { level 1 }
+
+    streamsBad OBJECT-TYPE
+	SYNTAX		Gauge32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of bad streams."
+    ::= { level 2 }
+
+    streamsScrambled OBJECT-TYPE
+	SYNTAX		Gauge32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of scrambled streams."
+    ::= { level 3 }
+
+    streamsTEI OBJECT-TYPE
+	SYNTAX		Gauge32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"The number of streams with Transport Error Indicator is on."
+    ::= { level 4 }
+
+-- other
+
+    lastChangedStreamAddr OBJECT-TYPE
+	SYNTAX		OCTET STRING
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"Stream address. For notification only."
+    ::= { other 1 }
+
+-- streams
+
+    streamsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF StreamsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Per stream data."
+    ::= { streams 1 }
+
+    streamsEntry OBJECT-TYPE
+    SYNTAX      StreamsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX       { sIP }
+    ::= { streamsTable 1 }
+
+    StreamsEntry ::=
+    SEQUENCE {
+                sIP               IpAddress,
+                sRecvBytes        Counter32,
+                sContinuityErrors Counter32,
+                sStatus           INTEGER,
+                sStatusDetail     BITS,
+                sName             OCTET STRING
+             }
+
+    sIP OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A stream IP."
+    ::= { streamsEntry 1 }
+
+    sRecvBytes OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A number of received bytes."
+    ::= { streamsEntry 2 }
+
+    sContinuityErrors OBJECT-TYPE
+	SYNTAX		Counter32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"A number of detected discontinuities."
+    ::= { streamsEntry 3 }
+
+    sStatus OBJECT-TYPE
+    SYNTAX      INTEGER {ok(1), bad(2)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A status of stream."
+    ::= { streamsEntry 4 }
+
+    sStatusDetail OBJECT-TYPE
+    SYNTAX      BITS {noSync(0), noIncoming(1), noAV(2), scrambled(3), tei(4)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A detailed status of stream."
+    ::= { streamsEntry 5 }
+
+    sName OBJECT-TYPE
+    SYNTAX      OCTET STRING
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A name of stream."
+    ::= { streamsEntry 6 }
+
+-- probes
+
+    probesTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ProbesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Probes data."
+    ::= { probes 1 }
+
+    probesEntry OBJECT-TYPE
+    SYNTAX      ProbesEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX       { pIP }
+    ::= { probesTable 1 }
+
+    ProbesEntry ::=
+    SEQUENCE {
+                pIP              IpAddress,
+                pDupsHtP         Counter32,
+                pDupsPtH         Counter32,
+                pHostPacketLost  Counter32,
+                pProbePacketLost Counter32,
+                pStatus          INTEGER
+             }
+
+    pIP OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A probe IP."
+    ::= { probesEntry 1 }
+
+    pDupsHtP OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A number of packet dups from host to probe."
+    ::= { probesEntry 2 }
+
+    pDupsPtH OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A number of packet dups from probe to host."
+    ::= { probesEntry 3 }
+
+    pHostPacketLost OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A number of host packet lost."
+    ::= { probesEntry 4 }
+
+    pProbePacketLost OBJECT-TYPE
+    SYNTAX      Counter32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A number of probe packet lost."
+    ::= { probesEntry 5 }
+
+    pStatus OBJECT-TYPE
+    SYNTAX      INTEGER {up(1), down(2), unknown(3)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A status of probe."
+    ::= { probesEntry 6 }
+
+    probesStreamsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ProbesStreamsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Probes streams data."
+    ::= { probes 2 }
+
+    probesStreamsEntry OBJECT-TYPE
+    SYNTAX      ProbesStreamsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION ""
+    INDEX       { pIP, sIP }
+    ::= { probesStreamsTable 1 }
+
+    ProbesStreamsEntry ::=
+    SEQUENCE {
+                psContinuityErrors Counter32,
+                psStatus           INTEGER
+             }
+
+    psContinuityErrors OBJECT-TYPE
+	SYNTAX		Counter32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"A number of detected discontinuities at probe."
+    ::= { probesStreamsEntry 1 }
+
+    psStatus OBJECT-TYPE
+    SYNTAX      INTEGER {up(1), down(2), unknown(3)}
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "A status of stream at probe."
+    ::= { probesStreamsEntry 2 }
+
+-- traps
+
+    streamDown NOTIFICATION-TYPE
+        OBJECTS { lastChangedStreamAddr }
+        STATUS  	current
+	DESCRIPTION     "A streamDown trap signifies that the stream status changed to 'bad'."
+    ::= { traps 1 }
+
+    streamUp NOTIFICATION-TYPE
+        OBJECTS { lastChangedStreamAddr }
+        STATUS  	current
+	DESCRIPTION     "A streamUp trap signifies that the stream status changed to 'ok'."
+    ::= { traps 2 }
+
+    probeDown NOTIFICATION-TYPE
+        OBJECTS { pIP }
+        STATUS  	current
+	DESCRIPTION     "A probeDown trap signifies that the probe status changed to 'down'."
+    ::= { traps 3 }
+
+    probeUp NOTIFICATION-TYPE
+        OBJECTS { pIP }
+        STATUS  	current
+	DESCRIPTION     "A probeUp trap signifies that the probe status changed to 'up'."
+    ::= { traps 4 }
+
+    streamAtProbeDown NOTIFICATION-TYPE
+        OBJECTS { pIP, sIP }
+        STATUS  	current
+	DESCRIPTION     "A streamAtProbeDown trap signifies that the stream status at the probe changed to 'down'."
+    ::= { traps 5 }
+
+    streamAtProbeUp NOTIFICATION-TYPE
+        OBJECTS { pIP, sIP }
+        STATUS  	current
+	DESCRIPTION     "A streamAtProbeUp trap signifies that the stream status at the probe changed to 'up'."
+    ::= { traps 6 }
+
+-- groups
+
+    streamNotificationsGroup NOTIFICATION-GROUP
+	NOTIFICATIONS	{ streamDown, streamUp }
+	STATUS        	current
+	DESCRIPTION	"The notifications."
+    ::= { groups 1 }
+
+    summaryCumulativeGroup OBJECT-GROUP
+	OBJECTS		{ recvBytes,
+	              continuityErrors }
+        STATUS  	current
+	DESCRIPTION 	"A collection of objects providing summary cumulative data."
+    ::= { groups 2 }
+
+    summaryLevelGroup OBJECT-GROUP
+	OBJECTS		{ streamsTotal,
+	              streamsBad,
+	              streamsScrambled,
+	              streamsTEI }
+        STATUS  	current
+	DESCRIPTION 	"A collection of objects providing summary data."
+    ::= { groups 3 }
+
+    otherGroup OBJECT-GROUP
+	OBJECTS		{ lastChangedStreamAddr }
+        STATUS  	current
+	DESCRIPTION 	"A collection of objects providing other data."
+    ::= { groups 4 }
+
+    streamsTableGroup OBJECT-GROUP
+	OBJECTS		{ sIP,
+	              sRecvBytes,
+	              sContinuityErrors,
+	              sStatus,
+	              sStatusDetail,
+	              sName }
+        STATUS  	current
+	DESCRIPTION 	"A collection of objects providing stream data."
+    ::= { groups 5 }
+
+    probesTableGroup OBJECT-GROUP
+	OBJECTS		{ pIP,
+	              pDupsHtP,
+	              pDupsPtH,
+	              pHostPacketLost,
+	              pProbePacketLost,
+	              pStatus }
+        STATUS  	current
+	DESCRIPTION 	"A collection of objects providing probe data."
+    ::= { groups 6 }
+
+    probeNotificationsGroup NOTIFICATION-GROUP
+    NOTIFICATIONS	{ probeDown, probeUp }
+    STATUS        	current
+    DESCRIPTION	"The probe notifications."
+    ::= { groups 7 }
+
+    probesStreamsTableGroup OBJECT-GROUP
+	OBJECTS		{ psContinuityErrors,
+                  psStatus }
+        STATUS  	current
+	DESCRIPTION 	"A collection of objects providing stream data at probe."
+    ::= { groups 8 }
+
+    probeStreamNotificationsGroup NOTIFICATION-GROUP
+    NOTIFICATIONS	{ streamAtProbeDown, streamAtProbeUp }
+    STATUS        	current
+    DESCRIPTION	"The probe stream notifications."
+    ::= { groups 9 }
+END

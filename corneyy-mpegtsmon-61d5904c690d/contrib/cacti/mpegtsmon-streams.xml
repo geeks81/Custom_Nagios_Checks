@@ -1,0 +1,40 @@
+<interface>
+	<name>MPEG-TS Monitor stream statistics</name>
+	<description>Queries a host for a stream statistics</description>
+	<oid_index>.1.3.6.1.4.1.37476.9000.24.1.3.1.1.1</oid_index>
+	<oid_num_indexes>.1.3.6.1.4.1.37476.9000.24.1.1.2.1.0</oid_num_indexes>
+	<index_order>tsGroupIP</index_order>
+	<index_order_type>numeric</index_order_type>
+	<index_title_format>|chosen_order_field|</index_title_format>
+
+	<fields>
+		<tsGroupIP>
+			<name>Group IP</name>
+			<method>walk</method>
+			<source>OID/REGEXP:.*\.([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$</source>
+			<direction>input</direction>
+			<oid>.1.3.6.1.4.1.37476.9000.24.1.3.1.1.1</oid>
+		</tsGroupIP>
+		<tsTraffic>
+			<name>Traffic</name>
+			<method>walk</method>
+			<source>value</source>
+			<direction>output</direction>
+			<oid>.1.3.6.1.4.1.37476.9000.24.1.3.1.1.2</oid>
+		</tsTraffic>
+		<tsErrors>
+			<name>Errors</name>
+			<method>walk</method>
+			<source>value</source>
+			<direction>output</direction>
+			<oid>.1.3.6.1.4.1.37476.9000.24.1.3.1.1.3</oid>
+		</tsErrors>
+		<tsStatus>
+			<name>Status</name>
+			<method>walk</method>
+			<source>value</source>
+			<direction>output</direction>
+			<oid>.1.3.6.1.4.1.37476.9000.24.1.3.1.1.4</oid>
+		</tsStatus>
+	</fields>
+</interface>

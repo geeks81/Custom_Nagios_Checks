@@ -1,0 +1,11 @@
+{recvBytes, {mpegtsmon_stat, recv_bytes, []}}.
+{continuityErrors, {mpegtsmon_stat, continuity_errors, []}}.
+{streamsTotal, {mpegtsmon_stat, streams_total, []}}.
+{streamsBad, {mpegtsmon_stat, streams_bad, []}}.
+{streamsScrambled, {mpegtsmon_stat, streams_scrambled, []}}.
+{streamsTEI, {mpegtsmon_stat, streams_tei, []}}.
+
+{streamsTable, {mpegtsmon_stat, streams_table, []}}.
+
+{probesTable, {mtsm_probes_stat, probes_table, []}}.
+{probesStreamsTable, {mtsm_probes_stat, probes_streams_table, []}}.

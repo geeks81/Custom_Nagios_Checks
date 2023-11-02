@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html ng-app="MpegtsMon">
+<meta charset="utf-8">
+  <head>
+    <title>MPEG TS Monitor</title>
+    <link rel="stylesheet" type="text/css" href="main.css"/>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-resource.min.js"></script>
+    <script type="text/javascript" src="client.js"></script>
+  </head>
+  <body ng-controller="Streams" ng-cloak>
+  <div class="menu"  ng-init="showList=false">
+    <div ng-attr-class="item show_list_{{!showList}}" ng-click="showList=false">
+      Thumbnails
+    </div>
+    <div ng-attr-class="item show_list_{{showList}}" ng-click="showList=true">
+      List
+    </div>
+  </div>
+  <div class="list" ng-show="showList">
+    <div class="summary">
+      <div class="summary_text">
+        <h3>Summary</h3>
+        <span>Streams: {{allNum}} Bad: {{bads.length}} Bitrate: {{totalRate.byte_ps | autoPs}}</span>
+      </div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="rate_chart" ng-attr-width="{{totalRate.length}}" height="50"
+           vbox="'0 0 '+totalRate.length+' '+totalRate.max" preserveAspectRatio="none">
+        <g ng-attr-transform="translate(1, {{totalRate.max-1}}) scale(1, -1)">
+          <path ng-attr-d="{{d(totalRate.rates)}}"/>
+        </g>
+      </svg>
+    </div>
+    <table class="streams_bad" ng-show="bads.length>0">
+      <caption>Bad streams</caption>
+      <thead>
+      <tr>
+        <th ng-click="badSortBy('addr')">Mcast address <span ng-show="badSortPropertyName=='addr'">&#9660;</span></th>
+        <th ng-click="badSortBy('name')">Name <span ng-show="badSortPropertyName=='name'">&#9660;</span></th>
+        <th ng-click="badSortBy('tags')" ng-show="tagsShow">Tags <span ng-show="badSortPropertyName=='tags'">&#9660;</span></th>
+        <th>Bitrate, Kbit/s</th><th>Cause</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="id in sortedBadIds()">
+        <td class="mcast">{{listAll[id].addr}} :{{listAll[id].port}}</td>
+        <td class="priority_{{params[id].prio}}">{{params[id].name}}</td>
+        <td class="tags" ng-show="tagsShow">{{params[id].tags | tagsList}}</td>
+        <td>{{listAll[id].status.byte_ps | Kbps}}</td>
+        <td>{{statuses[id].details | badDetails}}</td>
+        <td>
+            <svg xmlns="http://www.w3.org/2000/svg" class="error_chart" ng-attr-width="{{ratesLength}}" height="25"
+               vbox="'0 0 '+ratesLength+' '+100" preserveAspectRatio="none">
+            <use x="0" y="0" xlink:href="" xhref="'#Error'+id"  />
+          </svg>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <table class="streams" ng-init="showStreams=true">
+      <caption>
+        <span ng-attr-class="{{probes.length>0?'item show_'+showStreams:''}}" ng-click="showStreams=true">All streams</span>
+        <span ng-attr-class="item show_{{!showStreams}}" ng-show="probes.length>0" ng-click="showStreams=false">All probes</span>
+      </caption>
+      <thead ng-show="showStreams">
+        <tr>
+          <th></th>
+          <th ng-click="allSortBy('addr')">Mcast address <span ng-show="allSortPropertyName=='addr'">&#9660;</span></th>
+          <th ng-click="allSortBy('name')">Name <span ng-show="allSortPropertyName=='name'">&#9660;</span></th>
+          <th ng-click="allSortBy('tags')" ng-show="tagsShow">Tags <span ng-show="allSortPropertyName=='tags'">&#9660;</span></th>
+          <th>Bitrate, Kbit/s</th><th>Pids</th><th>Status</th><th>Rate</th></tr>
+      </thead>
+      <tbody ng-show="showStreams">
+      <tr ng-repeat="id in sortedAllIds()">
+        <td class="status"><div class="status status_is_ok_{{statuses[id].is_ok}}"></div></td>
+        <td class="mcast">{{listAll[id].addr}} :{{listAll[id].port}}</td>
+        <td class="priority_{{params[id].prio}}">{{params[id].name}}</td>
+        <td class="tags" ng-show="tagsShow">{{params[id].tags | tagsList}}</td>
+        <td>{{listAll[id].status.byte_ps | Kbps}}</td>
+        <td class="pids">
+        <ul class="pids">
+          <li ng-repeat="pid in listAll[id].pids">
+            {{pid | mpegtsPid}}
+          </li>
+        </ul>
+        </td>
+        <td>
+          <svg xmlns="http://www.w3.org/2000/svg" class="error_chart" ng-attr-width="{{ratesLength}}" height="25"
+               vbox="'0 0 '+ratesLength+' '+100" preserveAspectRatio="none">
+            <g ng-attr-transform="translate(1, {{100}}) scale(1, -1)" ng-attr-id="Error{{id}}">
+              <line class="base_ok" x1="-1" y1="0" ng-attr-x2="{{rates[id].discont.length}}" y2="0"/>
+
+              <path class="bad_true" ng-attr-d="{{bad(rates[id].bad, 5)}}"/>
+
+              <path class="nullpid" ng-attr-d="{{d(rates[id].nullpid, 5)}}"/>
+              <path class="discont" ng-attr-d="{{d(rates[id].discont, 5)}}"/>
+            </g>
+          </svg>
+          </td>
+        <td>
+          <svg xmlns="http://www.w3.org/2000/svg" class="rate_chart" ng-attr-width="{{ratesLength}}" height="25"
+               vbox="'0 0 '+ratesLength+' '+rates[id].max" preserveAspectRatio="none">
+            <g ng-attr-transform="translate(1, {{rates[id].max-1}}) scale(1, -1)">
+              <path ng-attr-d="{{d(rates[id].rates)}}"/>
+            </g>
+          </svg>
+        </td>
+      </tr>
+      </tbody>
+      <thead ng-show="!showStreams">
+      <tr><th></th><th>Mcast address</th><th>Name</th>
+        <th ng-repeat="probe in probes">
+          <span class="status status_{{probe.state.status}}"></span>
+          {{probe.params.name?probe.params.name:probe.id}}</th>
+      </tr>
+      </thead>
+      <tbody ng-show="!showStreams">
+      <tr ng-repeat="id in listAll | sortedKeys">
+        <td class="status"><div class="status status_is_ok_{{statuses[id].is_ok}}"></div></td>
+        <td class="mcast">{{listAll[id].addr}} :{{listAll[id].port}}</td>
+        <td class="priority_{{params[id].prio}}">{{params[id].name}}</td>
+        <td ng-repeat="probe in probes">
+          <span class="status status_{{streamStatus(probe.id, id, statuses[id].is_ok)}}"></span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="error_chart" ng-attr-width="{{ratesLength}}" height="25"
+               vbox="'0 0 '+ratesLength+' '+100" preserveAspectRatio="none">
+            <g ng-attr-transform="translate(1, {{100}}) scale(1, -1)" >
+              <line class="base_ok" x1="-1" y1="0" ng-attr-x2="{{probesRates[probe.id][id].discont.length}}" y2="0"/>
+
+              <line class="bad_{{status}}" ng-repeat="status in probesRates[probe.id][id].bad track by $index"
+                    ng-attr-x1="{{$index}}" y1="-5" ng-attr-x2="{{$index}}" y2="5"/>
+
+              <path class="discont" ng-attr-d="{{d(probesRates[probe.id][id].discont, 5)}}"/>
+            </g>
+          </svg>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="wall" ng-show="!showList">
+    <div class="summary">
+      <span>Streams: {{allNum}} Bad: {{bads.length}} Bitrate: {{totalRate.byte_ps | autoPs}}</span>
+      <span class="bad_stream" ng-repeat="id in sortedBadIds()" title="{{listAll[id].addr}}:{{listAll[id].port}}">
+        <span class="bad_name priority_{{params[id].prio}}">{{(params[id].name!=undefined && params[id].name!="")?params[id].name:listAll[id].addr}}</span>
+        <span class="bad_details">{{statuses[id].details | badDetails}}</span>
+      </span>
+    </div>
+    <div class="thumbs">
+      <div class="thumb" ng-repeat="thumb in thumbs | orderBy: 'id'"
+           title="{{listAll[thumb.id].addr}}:{{listAll[thumb.id].port}}"
+           ng-click="thumb.show=!thumb.show">
+        <div class="img">
+          <img width="96" height="72" ng-attr-src="{{thumb.src}}"/>
+          <div class="over priority_{{params[thumb.id].prio}}">{{params[thumb.id].name}}</div>
+        </div>
+        <div class="show" ng-show="thumb.show">
+          {{listAll[thumb.id].addr}}:{{listAll[thumb.id].port}}<br/>
+          {{listAll[thumb.id].status.byte_ps | autoPs}}<br/>
+          <svg xmlns="http://www.w3.org/2000/svg" class="error_chart" ng-attr-width="{{rates[thumb.id].discont.length/2}}" height="25"
+               vbox="'0 0 '+rates[thumb.id].discont.length/2+' '+100" preserveAspectRatio="none">
+            <g ng-attr-transform="translate(1, {{100}}) scale(0.5, -1)">
+              <line class="base_ok" x1="-2" y1="0" ng-attr-x2="{{rates[thumb.id].discont.length}}" y2="0"/>
+
+              <path class="bad_true" ng-attr-d="{{bad(rates[thumb.id].bad, 5)}}"/>
+
+              <path class="nullpid" ng-attr-d="{{d(rates[thumb.id].nullpid, 5)}}"/>
+              <path class="discont" ng-attr-d="{{d(rates[thumb.id].discont, 5)}}"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  </body>
+</html>

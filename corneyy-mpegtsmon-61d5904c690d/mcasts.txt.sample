@@ -1,0 +1,3 @@
+default:239.0.0.1:1234;channel name;priority, #tag1, #tag2
+239.0.0.2:1234;channel1 name
+239.0.0.3:1234@0.0.0.0

@@ -1,0 +1,74 @@
+body {width:99%; font-family: Arial, Helvetica, sans-serif}
+
+.priority_1 {font-weight: bold}
+
+div.menu {position: absolute; top:0; right:0;border: 2px solid gray; outline: 2px solid white; margin:2px}
+div.menu .item{height:2rem; text-align:center; line-height:2rem; vertical-align:middle; cursor:pointer}
+div.menu .show_list_true{background:gray}
+div.menu .show_list_false{background:lightgray}
+
+div.list {min-width:900px; width:80%; margin:0 auto; overflow: auto}
+div.summary {padding:0.5rem 0 0 1rem; background: lightgray}
+div.summary_text {float: left; margin: 0 1rem 0 0}
+h3 {margin: 0 1rem 0.8rem 0; font-size: 1.1rem}
+
+table {width:100%; margin-top: 2rem}
+caption {text-align: left; padding-left: 1rem; font-size:1.1rem; font-weight:bold; line-height:1.5rem;}
+th { color:gray; line-height:1.5rem;}
+td {text-align:center; vertical-align:middle}
+
+table.streams caption {background:lightgray;}
+table.streams th {background:lightgray;}
+table.streams tr:nth-child(odd) {background:gainsboro}
+table.streams tr:nth-child(even) {background:lightgray}
+table.streams caption .item{cursor:pointer}
+table.streams caption .show_true{background:gray}
+table.streams caption .show_false{background:darkgray}
+
+
+td.mcast {text-align:right; text-align-last:justify; padding-left: 1rem; padding-right: 1rem; width:1%; white-space:nowrap;}
+td.pids {text-align:left; padding-left: 1rem; padding-right: 1rem; width:1%; white-space:nowrap;}
+td.status {width:1.5rem}
+
+div.status {width: 1rem; height:1rem; content: ""; margin: auto;}
+span.status {display:inline-block; width: 1rem; height:1rem; content: ""; vertical-align: middle;}
+.status_is_ok_false {background: red; border:brown solid 1px;}
+.status_unknown {background: darkgray; border:gray solid 1px;}
+.status_up {background: green; border:darkgreen solid 1px;}
+.status_down {background: red; border:brown solid 1px;}
+
+ul.pids {display:inline; padding-left: 0; font-size: 0.7rem }
+ul.pids li {display:inline}
+
+table.streams_bad caption {background:seashell;}
+table.streams_bad th {background:seashell;}
+table.streams_bad tr:nth-child(odd) {background:snow}
+table.streams_bad tr:nth-child(even) {background:seashell}
+
+svg {padding: 2px}
+.rate_chart {vertical-align: middle}
+.rate_chart path {stroke: blue; stroke-width: 1;shape-rendering:crispEdges;}
+
+line.base_ok {stroke: green; stroke-width: 10;shape-rendering:crispEdges}
+line.bad_true {stroke: red; stroke-width: 2;shape-rendering:crispEdges}
+line.bad_down {stroke: red; stroke-width: 2;shape-rendering:crispEdges}
+line.bad_unknown {stroke: gray; stroke-width: 2;shape-rendering:crispEdges}
+
+path.bad_true {stroke: red; stroke-width: 2;shape-rendering:crispEdges}
+
+.error_chart {vertical-align: middle}
+.error_chart path.discont {stroke: red; stroke-width: 2;}
+.error_chart path.nullpid {stroke: orange; stroke-width: 1;shape-rendering:crispEdges}
+
+div.wall {}
+div.wall div.summary {min-width:900px; width:80%; margin:0 auto; overflow: auto; padding:0.5rem 0 0.5rem 0;}
+div.wall div.summary>span:first-child {margin: 0 0 0 1rem}
+span.bad_stream {display: inline-block; margin: 0 0.5rem 0 0.5rem}
+.bad_name {color:red}
+.bad_details {font-size: 0.5rem;}
+div.wall div.thumbs {margin-top: 1rem; text-align:center}
+
+div.thumb{display:inline-block; padding: 1px; cursor:pointer}
+div.thumb div.img {display:inline-block; position:relative}
+div.thumb div.img div.over {position:absolute; top:0; text-shadow: 0 0 4px black; color:white}
+div.thumb div.show{display:inline-block; text-align: left; vertical-align: top}

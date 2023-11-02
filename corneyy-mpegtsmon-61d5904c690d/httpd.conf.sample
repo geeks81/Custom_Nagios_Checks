@@ -1,0 +1,16 @@
+ServerName localhost
+ServerRoot server_root
+DocumentRoot server_root/html
+
+Port 8080
+
+Modules mod_esi mod_alias rfc4627_jsonrpc_inets mod_head mod_get mod_log
+
+DirectoryIndex index.html
+
+JsonRpcAlias /rpc
+ErlScriptAlias /esi mpegtsmon_esi
+
+ErrorLog logs/error_log
+TransferLog logs/access_log
+SecurityLog logs/security_log

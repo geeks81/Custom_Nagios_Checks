@@ -1,0 +1,15 @@
+{application, mpegtsmon,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, [mpegtsmon_stream_sup]},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { mpegtsmon, []}},
+  {env, [
+    {thumb_generators, 1},
+    {thumb_preloads, 5}
+  ]}
+ ]}.

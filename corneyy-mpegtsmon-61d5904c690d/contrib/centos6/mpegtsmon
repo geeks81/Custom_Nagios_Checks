@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# mpegtsmon
+#		
+#
+# chkconfig: - 10 90
+# description: mpeg ts monitor
+#
+#
+
+### BEGIN INIT INFO
+# Provides: mpegtsmon
+# Required-Start: $network
+# Required-Stop: $network
+# Short-Description: start and stop mpegtsmon
+# Description: MPEG TS monitor
+#
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+prog=daemon.sh
+lockfile=/var/lock/subsys/$prog
+prog_path=/home/iptvmon/mpegtsmon
+prog_user=iptvmon
+
+start() {
+    [ "$EUID" != "0" ] && exit 4
+    [ "$NETWORKING" = "no" ] && exit 1
+    [ -x $prog_path ] || exit 5
+
+        # Start daemons.
+        echo -n $"Starting $prog: "
+        daemon --user $prog_user ${prog_path}/start_daemon.sh $OPTIONS &
+    RETVAL=$?
+        echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    [ "$EUID" != "0" ] && exit 4
+        echo -n $"Shutting down $prog: "
+    ${prog_path}/stop_daemon.sh
+    RETVAL=$?
+        echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status $prog
+    ;;
+  restart|force-reload)
+    stop
+    start
+    ;;
+  try-restart|condrestart)
+    if status $prog > /dev/null; then
+        stop
+        start
+    fi
+    ;;
+  reload)
+    exit 3
+    ;;
+  *)
+    echo $"Usage: $0 {start|stop|status|restart|try-restart|force-reload}"
+    exit 2
+esac
